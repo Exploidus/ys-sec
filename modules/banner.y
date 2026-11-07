@@ -20,6 +20,7 @@ fn service_name(port) {
     return "unknown"
 }
 
+-- Pure native Yolish banner grabbing (Zero PowerShell dependency)
 fn banner_grab() {
     let host = require_env("YS_SEC_A", "host")
     let port_s = require_env("YS_SEC_B", "port")
@@ -31,29 +32,32 @@ fn banner_grab() {
         return
     }
 
-    let raw = process.spawn("powershell.exe -NoProfile -NonInteractive -File bin/banner-helper.ps1")
     y.println("Host: " + host)
     y.println("Port: " + y.str(port))
     y.println("Service: " + service_name(port))
 
-    if y.is_nil(raw) || y.trim(raw) == "" {
-        y.println("Banner: unavailable")
+    let sock = y.net.connect(host, port)
+    if sock == -1 {
+        y.println("Banner: connection failed")
         return
     }
 
-    let lines = y.split(raw, "\n")
-    var banner = ""
-    for line in lines {
-        let t = y.trim(line)
-        if y.starts_with(t, "BANNER=") {
-            banner = y.substr(t, 7, y.len(t))
-        }
+    -- Set timeout to 2000ms so we don't hang on silent services
+    y.net.set_timeout(sock, 2000)
+
+    -- Send probe for HTTP if port 80/8080/443
+    if port == 80 || port == 8080 {
+        y.net.send(sock, "HEAD / HTTP/1.0\r\nHost: " + host + "\r\n\r\n")
     }
 
-    if banner == "" {
-        y.println("Banner: unavailable")
-    } else {
-        y.println("Banner:")
-        y.println(banner)
+    let raw = y.net.recv(sock, 1024)
+    y.net.close(sock)
+
+    if y.is_nil(raw) || y.trim(raw) == "" {
+        y.println("Banner: unavailable (connected but no initial banner sent)")
+        return
     }
+
+    y.println("Banner:")
+    y.println(y.trim(raw))
 }

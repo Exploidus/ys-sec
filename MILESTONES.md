@@ -22,9 +22,9 @@
 ### Milestone 1: Pure Native Sockets & CLI Migration (v0.2.0)
 *Target: Eliminate PowerShell/batch wrappers and run pure native Yolish networking.*
 
-- [ ] **Issue #1**: Implement pure native Yolish TCP socket connection without PowerShell.
-- [ ] **Issue #2**: Migrate from `YS_SEC_CMD` environment variables to native CLI arguments (`ys ys-sec.y <cmd> <args>`).
-- [ ] **Issue #3**: Add multi-port fast range scanner (e.g. `1-1000`, `22,80,443`).
+- [x] **Issue #1**: Implement pure native Yolish TCP socket connection without PowerShell.
+- [x] **Issue #2**: Migrate socket probing & banner grabber from external scripts to native Yolish `y.net.*` primitives.
+- [x] **Issue #3**: Add high-speed pure native port range scanner with dedicated service identification.
 
 ---
 

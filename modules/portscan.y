@@ -28,14 +28,13 @@ fn service_name(port) {
     return "unknown"
 }
 
-fn windows_tcp_test(host, port) {
-    let command = "powershell.exe -NoProfile -NonInteractive -Command \"Test-NetConnection -ComputerName " + host + " -Port " + y.str(port) + " -InformationLevel Quiet\""
-    let result = process.spawn(command)
-
-    if y.starts_with(result, "True") {
+-- Pure native Yolish TCP socket probe (Zero PowerShell dependency)
+fn tcp_probe(host, port) {
+    let sock = y.net.connect(host, port)
+    if sock != -1 {
+        y.net.close(sock)
         return true
     }
-
     return false
 }
 
@@ -58,35 +57,26 @@ fn portscan() {
     let service = has_flag("YS_SEC_SERVICE")
     let results = y.map.new()
     var p = start
-    var open_count = 0
+
+    y.println("[*] Scanning " + host + " (" + y.str(start) + "-" + y.str(end) + ") via native Yolish sockets...")
 
     while p <= end {
-        if windows_tcp_test(host, p) {
-            let name = service_name(p)
-
+        let is_open = tcp_probe(host, p)
+        if is_open {
+            let sname = service_name(p)
+            y.map.set(results, y.str(p), sname)
             if service {
-                y.println("OPEN  " + y.str(p) + "  " + name)
+                y.println("[+] " + y.str(p) + " open (" + sname + ")")
             } else {
-                y.println("OPEN  " + y.str(p))
+                y.println("[+] " + y.str(p) + " open")
             }
-
-            results = y.map.set(results, y.str(p), name)
-            open_count = open_count + 1
         }
-
         p = p + 1
     }
 
     if has_flag("YS_SEC_JSON") {
-        let report = y.map.new()
-        report = y.map.set(report, "target", host)
-        report = y.map.set(report, "start", start)
-        report = y.map.set(report, "end", end)
-        report = y.map.set(report, "open_count", open_count)
-        report = y.map.set(report, "ports", results)
-
-        let encoded = y.json.stringify(report)
-        y.println(encoded)
-        save_if_requested(encoded)
+        y.println(y.json.stringify(results))
     }
+
+    save_if_requested(y.json.stringify(results))
 }
