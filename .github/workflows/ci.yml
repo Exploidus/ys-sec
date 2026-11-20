@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout ys-sec
+        uses: actions/checkout@v4
+
+      - name: Checkout Yolish Runtime
+        uses: actions/checkout@v4
+        with:
+          repository: rahadbhuiya/Yolish
+          path: yolish-src
+
+      - name: Compile Yolish Interpreter
+        run: |
+          cd yolish-src
+          gcc -std=c11 -Wall -O2 lexer.c parser.c eval.c net_runtime.c compiler.c elf_out.c pe_out.c macho_out.c formatter.c checker.c bytecode.c bcompiler.c vm.c main.c -o ys
+          sudo cp ys /usr/local/bin/ys
+          ys -h || true
+
+      - name: Test ys-sec Dispatcher & Help
+        run: |
+          ys ys-sec.y help
+
+      - name: Test Subnet Math Engine
+        run: |
+          YS_SEC_CMD=subnet YS_SEC_A=192.168.1.0/24 ys ys-sec.y
+          YS_SEC_CMD=subnet-hosts YS_SEC_A=10.0.0.0/30 ys ys-sec.y
+
+      - name: Test Exploidus OS BLAKE3 Capability Auditor
+        run: |
+          YS_SEC_CMD=cap-audit YS_SEC_A=1 ys ys-sec.y
+
+      - name: Test Exploidus OS CNSL Threat Inspector
+        run: |
+          YS_SEC_CMD=cnsl-audit ys ys-sec.y
+
+      - name: Test Exploidus OS FIM Verifier
+        run: |
+          YS_SEC_CMD=fim-audit ys ys-sec.y
+
+      - name: Test HTTP Security Header Analyzer
+        run: |
+          YS_SEC_CMD=headers YS_SEC_A=example.com ys ys-sec.y || true

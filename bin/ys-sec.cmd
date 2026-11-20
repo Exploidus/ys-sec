@@ -19,6 +19,14 @@ shift
 goto parse
 
 :run
-ys "%ROOT%\ys-sec.y"
+set "YS_EXE=ys"
+where ys >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    if exist "%ROOT%\..\Yolish\ys.exe" (
+        set "YS_EXE=%ROOT%\..\Yolish\ys.exe"
+    )
+)
+
+"%YS_EXE%" "%ROOT%\ys-sec.y"
 set "RC=%ERRORLEVEL%"
 endlocal & exit /b %RC%

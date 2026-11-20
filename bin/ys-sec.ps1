@@ -19,7 +19,15 @@ $env:YS_SEC_SERVICE = if ($Service) { "1" } else { "0" }
 $env:YS_SEC_JSON = if ($Json) { "1" } else { "0" }
 $env:YS_SEC_OUT = $Out
 
-& ys $source
+$ysPath = "ys"
+if (-not (Get-Command ys -ErrorAction SilentlyContinue)) {
+    $localYs = Join-Path (Split-Path -Parent $root) "Yolish\ys.exe"
+    if (Test-Path $localYs) {
+        $ysPath = $localYs
+    }
+}
+
+& $ysPath $source
 $code = $LASTEXITCODE
 
 Remove-Item Env:YS_SEC_CMD,Env:YS_SEC_A,Env:YS_SEC_B,Env:YS_SEC_C,Env:YS_SEC_SERVICE,Env:YS_SEC_JSON,Env:YS_SEC_OUT -ErrorAction SilentlyContinue

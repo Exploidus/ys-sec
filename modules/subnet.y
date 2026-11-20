@@ -48,13 +48,13 @@ fn subnet_info() {
     let block = y.int(y.math.pow(2, 32 - bits))
     let network = (ip / block) * block
 
-    y.println("Network: " + int_to_ip(network))
-    y.println("Prefix:  /" + y.str(bits))
+    y.println("Network:   " + int_to_ip(network))
+    y.println("Prefix:    /" + y.str(bits))
     y.println("Addresses: " + y.str(block))
 
     if bits <= 30 {
         let broadcast = network + block - 1
-        y.println("Broadcast: " + int_to_ip(broadcast))
+        y.println("Broadcast:  " + int_to_ip(broadcast))
         y.println("First host: " + int_to_ip(network + 1))
         y.println("Last host:  " + int_to_ip(broadcast - 1))
     }
@@ -100,6 +100,51 @@ fn subnet_hosts() {
         y.println(int_to_ip(i))
         i = i + 1
     }
+}
 
-    y.println("Broadcast: " + int_to_ip(last + 1))
+-- Pure native Yolish Subnet Live Host Scanner
+fn subnet_scan() {
+    let cidr = require_env("YS_SEC_A", "CIDR")
+    if y.is_nil(cidr) { return }
+
+    let p = y.split(cidr, "/")
+    if y.len(p) != 2 {
+        y.println("Invalid IPv4 CIDR")
+        return
+    }
+
+    let ip = ip_to_int(p[0])
+    let bits = y.int(p[1])
+
+    if ip < 0 || bits < 24 || bits > 30 {
+        y.println("Subnet scan requires a /24 to /30 network (max 254 hosts)")
+        return
+    }
+
+    var probe_port = 80
+    let custom_port_s = env("YS_SEC_B")
+    if !y.is_nil(custom_port_s) && custom_port_s != "" {
+        probe_port = y.int(custom_port_s)
+    }
+
+    let block = y.int(y.math.pow(2, 32 - bits))
+    let network = (ip / block) * block
+    let last = network + block - 2
+    var current = network + 1
+
+    y.println("Scanning subnet " + cidr + " on probe port " + y.str(probe_port) + "...")
+    var live_count = 0
+
+    while current <= last {
+        let host_ip = int_to_ip(current)
+        let sock = y.net.connect(host_ip, probe_port)
+        if sock != -1 {
+            y.net.close(sock)
+            y.println("[+] LIVE HOST: " + host_ip + " (port " + y.str(probe_port) + " OPEN)")
+            live_count = live_count + 1
+        }
+        current = current + 1
+    }
+
+    y.println("Scan complete: " + y.str(live_count) + " live hosts discovered.")
 }

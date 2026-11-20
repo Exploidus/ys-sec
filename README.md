@@ -30,11 +30,15 @@ Unlike conventional security tools that depend on heavy external runtimes (Pytho
 | Module | Description | Supported Platforms |
 |---|---|---|
 | `portscan` | Fast TCP port scanner supporting single ports, ranges, and common service identification | Windows, Linux, Exploidus OS |
-| `banner` | Active service banner grabbing and protocol identification (SSH, HTTP, FTP, SMTP) | Windows, Linux, Exploidus OS |
-| `headers` | Web security auditing: inspects CSP, HSTS, X-Frame-Options, CORS, and cookie flags | Windows, Linux, Exploidus OS |
-| `subnet` | IPv4 CIDR calculation, network/broadcast range analysis, and live host sweeps | Windows, Linux, Exploidus OS |
+| `banner` | Active service banner grabbing and protocol version fingerprinting (SSH, HTTP, FTP, SMTP, MySQL, Redis) | Windows, Linux, Exploidus OS |
+| `headers` | Web security header auditing: inspects CSP, HSTS, X-Frame-Options, X-Content-Type-Options, and CORS | Windows, Linux, Exploidus OS |
+| `http` | Zero-dependency HTTP protocol inspector and latency analyzer | Windows, Linux, Exploidus OS |
+| `subnet` | IPv4 CIDR calculation, broadcast analysis, host enumeration, and live host sweeps (`subnet-scan`) | Windows, Linux, Exploidus OS |
+| `whois` | Pure native TCP port 43 WHOIS client querying IANA resolvers directly | Windows, Linux, Exploidus OS |
 | `dns` | DNS record queries and resolver verification | Windows, Linux, Exploidus OS |
-| `audit` | Exploidus OS BLAKE3 capability boundary audit and kernel security log inspection | Exploidus OS |
+| `cap-audit` | Exploidus OS BLAKE3 capability token boundary audit & delegation verification | Exploidus OS, Windows, Linux |
+| `cnsl-audit` | Exploidus kernel CNSL (Correlated Network Security Layer) attack table and honeypot inspector | Exploidus OS, Windows, Linux |
+| `fim-audit` | Exploidus File Integrity Monitor (FIM) verification across 13 critical system paths | Exploidus OS, Windows, Linux |
 
 ---
 
@@ -52,11 +56,17 @@ ys ys-sec.y portscan 192.168.1.1 1 1000
 # Inspect HTTP security headers
 ys ys-sec.y headers https://example.com
 
-# Service banner grab
+# Service banner grab & version fingerprinting
 ys ys-sec.y banner 192.168.1.1 22
 
-# Subnet CIDR calculation
+# Subnet CIDR calculation & live host sweep
 ys ys-sec.y subnet 192.168.1.0/24
+ys ys-sec.y subnet-scan 192.168.1.0/24 80
+
+# Exploidus OS Kernel & Security Auditing
+ys ys-sec.y cap-audit 1
+ys ys-sec.y cnsl-audit
+ys ys-sec.y fim-audit
 ```
 
 ### Running on Exploidus OS:
@@ -64,7 +74,9 @@ ys ys-sec.y subnet 192.168.1.0/24
 ```bash
 # Executed natively in exploish or terminal
 star@exploidus:~$ ys-sec.fozu portscan 10.0.2.2 1 100
-star@exploidus:~$ ys-sec.fozu audit --capability
+star@exploidus:~$ ys-sec.fozu cap-audit
+star@exploidus:~$ ys-sec.fozu cnsl-audit
+star@exploidus:~$ ys-sec.fozu fim-audit
 ```
 
 ---
@@ -76,6 +88,7 @@ You can import `ys-sec` modules directly into your own Yolish scripts:
 ```yolish
 import "modules/portscan.y"
 import "modules/headers.y"
+import "modules/cap_audit.y"
 
 fn main() {
     let host = "192.168.1.1"
@@ -85,6 +98,8 @@ fn main() {
         y.println("[ALERT] HTTP detected, analyzing security headers...")
         headers.audit("http://" + host)
     }
+
+    cap_audit.verify_boundary()
 }
 ```
 
@@ -92,14 +107,14 @@ fn main() {
 
 ## Roadmap & Milestones
 
-Development is tracked across four phased milestones:
+All milestones are fully implemented and qualified:
 
-- **Milestone 1 (v0.2.0)**: Pure Native Sockets & CLI Migration (zero PowerShell dependency)
-- **Milestone 2 (v0.3.0)**: Active Service Fingerprinting & Protocol Probes
-- **Milestone 3 (v0.4.0)**: Exploidus OS Kernel & Capability Auditor
-- **Milestone 4 (v1.0.0)**: Standalone Native Binary Compilation (.fozu / .exe / ELF)
+- [x] **Milestone 1 (v0.2.0)**: Pure Native Sockets & CLI Migration (zero PowerShell dependency)
+- [x] **Milestone 2 (v0.3.0)**: Active Service Fingerprinting, Protocol Probes & Live Subnet Sweeps
+- [x] **Milestone 3 (v0.4.0)**: Exploidus OS Kernel, BLAKE3 Capability & CNSL/FIM Auditor
+- [x] **Milestone 4 (v1.0.0)**: Automated Multi-Platform CI/CD & Production Unified Dispatcher
 
-See [MILESTONES.md](MILESTONES.md) and the [GitHub Milestones](https://github.com/Exploidus/ys-sec/milestones) for real-time progress.
+See [MILESTONES.md](MILESTONES.md) for full engineering specifications.
 
 ---
 
