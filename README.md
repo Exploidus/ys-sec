@@ -109,6 +109,16 @@ See [MILESTONES.md](MILESTONES.md) and the [GitHub Milestones](https://github.co
 
 ---
 
-## License
+## License & Commercial Inquiries
 
-MIT License. Copyright (c) 2026 Rahad Bhuiya / Exploidus Labs.
+`ys-sec` is dual-licensed under open-source and commercial terms:
+
+### 1. Open Source (GNU AGPLv3 or Later)
+For open-source projects, community auditing, security researchers, and educational exploration, `ys-sec` is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**.
+Under this license, any network scanner, cloud vulnerability assessment platform, hosted security auditor, or remote verification service that incorporates, modifies, or runs `ys-sec` over a network must provide complete source code under AGPL-3.0-or-later to users interacting with it remotely. See [LICENSE](LICENSE) for the full text.
+
+### 2. Proprietary Commercial License
+For cybersecurity vendors, Managed Security Service Providers (MSSPs), enterprise vulnerability management suites, hardware security appliance manufacturers, and proprietary DevSecOps platforms that wish to embed `ys-sec` modules into proprietary closed-source solutions without AGPL-3.0 copyleft obligations:
+- Commercial licenses are available without copyleft requirements.
+- Includes custom Yolish auditing module development, dedicated API bindings, and priority support.
+- For commercial licensing terms and enterprise inquiries, contact: **`rahadbhuiya2021@gmail.com`**.
