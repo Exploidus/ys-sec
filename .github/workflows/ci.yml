@@ -29,7 +29,7 @@ jobs:
 
       - name: Test ys-sec Dispatcher & Help
         run: |
-          ys ys-sec.y help
+          YS_SEC_CMD=help ys ys-sec.y
 
       - name: Test Subnet Math Engine
         run: |
