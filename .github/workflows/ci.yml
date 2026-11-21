@@ -23,7 +23,7 @@ jobs:
       - name: Compile Yolish Interpreter
         run: |
           cd yolish-src
-          gcc -std=c11 -Wall -O2 lexer.c parser.c eval.c net_runtime.c compiler.c elf_out.c pe_out.c macho_out.c formatter.c checker.c bytecode.c bcompiler.c vm.c main.c -o ys
+          gcc -std=c11 -Wall -O2 *.c -o ys -lm
           sudo cp ys /usr/local/bin/ys
           ys -h || true
 
